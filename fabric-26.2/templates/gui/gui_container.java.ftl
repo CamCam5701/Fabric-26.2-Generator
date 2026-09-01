@@ -49,6 +49,8 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 
 	private boolean bound = false;
 	private Supplier<Boolean> boundItemMatcher = null;
+	private Entity boundEntity = null;
+	private BlockEntity boundBlockEntity = null;
 	private ItemStack boundItem = null;
 
 	public ${name}Menu(int id, Inventory inv) {
@@ -60,7 +62,35 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 	}
 
 	public ${name}Menu(int id, Inventory inv, FriendlyByteBuf extraData) {
-		this(id, inv, new SimpleContainer(${data.getMaxSlotID() + 1}), extraData);
+		this(id, inv, resolveBlockContainer(inv, extraData), extraData);
+	}
+
+	private static Container resolveBlockContainer(Inventory inv, FriendlyByteBuf extraData) {
+		// The MenuType factory uses this constructor on both sides. Keep a temporary
+		// mirror on the client (slot sync populates it), but on the dedicated/integrated
+		// server bind procedure-opened GUIs to the real block inventory at the supplied
+		// position. This makes "Open GUI at x/y/z" persist items just like a GUI
+		// opened directly by its bound block entity.
+		if (extraData != null && !inv.player.level().isClientSide()) {
+			extraData.markReaderIndex();
+			try {
+				BlockPos pos = extraData.readBlockPos();
+				// Item/entity-bound internal opens append marker data after BlockPos. Only
+				// treat a buffer containing exactly the position as a block-bound open.
+				if (extraData.readableBytes() == 0) {
+					BlockEntity blockEntity = inv.player.level().getBlockEntity(pos);
+					if (blockEntity instanceof Container blockContainer
+							&& blockContainer.getContainerSize() >= ${data.getMaxSlotID() + 1}) {
+						return blockContainer;
+					}
+				}
+			} catch (IndexOutOfBoundsException ignored) {
+				// Malformed/short extra data: fall back to a temporary GUI inventory.
+			} finally {
+				extraData.resetReaderIndex();
+			}
+		}
+		return new SimpleContainer(${data.getMaxSlotID() + 1});
 	}
 
 	public ${name}Menu(int id, Inventory inv, Container container, FriendlyByteBuf extraData) {
@@ -76,12 +106,24 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 
 		<#if data.type == 1>
 			if (pos != null) {
-				if (extraData.readableBytes() == 1) { // bound to item
+				if (extraData.readableBytes() == 1) { <#-- bound to item, GUI opened by item ME internal logic -->
 					byte hand = extraData.readByte();
 					ItemStack itemstack = hand == 0 ? this.entity.getMainHandItem() : this.entity.getOffhandItem();
 					this.boundItem = itemstack;
 					this.boundItemMatcher = () -> itemstack == (hand == 0 ? this.entity.getMainHandItem() : this.entity.getOffhandItem());
 					this.bound = true;
+				} else if (extraData.readableBytes() > 1) { <#-- bound to entity, GUI opened by entity ME internal logic -->
+					extraData.readByte(); <#-- drop padding byte -->
+					boundEntity = world.getEntity(extraData.readVarInt());
+					if (boundEntity != null)
+						this.bound = true;
+				} else { <#-- if the menu actually uses the container block at pos, bind to it -->
+					boundBlockEntity = this.world.getBlockEntity(pos);
+					// Do not mark a temporary SimpleContainer as bound merely because a
+					// container block exists at this position. The backing inventory itself
+					// must be that block entity, otherwise closing the GUI can lose items.
+					if (boundBlockEntity instanceof Container && this.inventory == boundBlockEntity)
+						this.bound = true;
 				}
 			}
 		</#if>
@@ -177,6 +219,10 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 		if (this.bound) {
 			if (this.boundItemMatcher != null)
 				return this.boundItemMatcher.get();
+			else if (this.boundBlockEntity != null)
+				return AbstractContainerMenu.stillValid(this.access, player, this.boundBlockEntity.getBlockState().getBlock());
+			else if (this.boundEntity != null)
+				return this.boundEntity.isAlive();
 		}
 		return this.inventory.stillValid(player);
 	}
@@ -296,11 +342,20 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 		@Override public void removed(Player playerIn) {
 			super.removed(playerIn);
 
-			// Return all items left in the GUI's internal container when the menu closes.
-			// Without this, SimpleContainer contents are discarded when the menu is removed.
+			<#if hasProcedure(data.onClosed)>
+				<@procedureOBJToCode data.onClosed/>
+			</#if>
+
+			// Only clear temporary, unbound GUI slots that are explicitly configured to drop/return
+			// their contents when the GUI closes. Bound block/entity/item inventories must persist.
 			if (!bound && playerIn instanceof ServerPlayer serverPlayer) {
 				if (!serverPlayer.isAlive() || serverPlayer.hasDisconnected()) {
 					for (int i = 0; i < inventory.getContainerSize(); ++i) {
+						<#list data.components as component>
+							<#if component.getClass().getSimpleName()?ends_with("Slot") && !component.dropItemsWhenNotBound>
+								if (i == ${component.id}) continue;
+							</#if>
+						</#list>
 						ItemStack stack = inventory.getItem(i);
 						if (!stack.isEmpty()) {
 							playerIn.drop(stack.copy(), false);
@@ -309,6 +364,11 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 					}
 				} else {
 					for (int i = 0; i < inventory.getContainerSize(); ++i) {
+						<#list data.components as component>
+							<#if component.getClass().getSimpleName()?ends_with("Slot") && !component.dropItemsWhenNotBound>
+								if (i == ${component.id}) continue;
+							</#if>
+						</#list>
 						ItemStack stack = inventory.getItem(i);
 						if (!stack.isEmpty()) {
 							playerIn.getInventory().placeItemBackInInventory(stack);
@@ -317,10 +377,6 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 					}
 				}
 			}
-
-			<#if hasProcedure(data.onClosed)>
-				<@procedureOBJToCode data.onClosed/>
-			</#if>
 		}
 
 		<#if data.hasSlotEvents()>
@@ -381,3 +437,4 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 </@javacompress>
 <#-- @formatter:on -->
 <#-- @formatter:on -->
+
