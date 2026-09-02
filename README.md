@@ -16,14 +16,15 @@ This 26.2 port uses Fabric Loader 0.19.3, Loom 1.17-SNAPSHOT, Gradle 9.5.1, Java
 - Back up your workspace before updating to a newer version of the plugin.
 - Mods will also require [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) to function properly, so when you want to play your mod, make sure you have Fabric API.
 
-## Credits/License
+## Credits / License
 
-Dev - CamCam5701, a fork from [Goldorion](https://github.com/Goldorion)
-This generator re-uses code from the official MCreator's NeoForge generator and from [Goldorions Fabric 26.1.2 generator](https://mcreator.net/plugin/64512/mcreator-fabric-generator) in the form of a fork.
+Developer: [CamCam5701](https://github.com/CamCam5701)
 
-The plugin's MCreator page is [here](https://mcreator.net/plugin/64512/mcreator-fabric-generator).
+Forked from [Goldorion's Fabric Generator](https://github.com/Goldorion).
 
-Licensed under the GNU General Public License, version 3.0
+This generator reuses code from the official MCreator NeoForge generator and from [Goldorion's Fabric 26.1.2 generator](https://mcreator.net/plugin/64512/mcreator-fabric-generator).
 
-- Changes must be stated if any modified works are to be distributed.
-- Under no circumstances can you state that the original creator endorses modified works.
+Licensed under the GNU General Public License, version 3.0.
+
+- Changes must be stated if modified works are distributed.
+- You may not state or imply that the original creator endorses modified works.
