@@ -127,6 +127,16 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 				}
 			}
 		</#if>
+
+		<#if hasProcedure(data.onOpen)>
+			// The menu coordinates are populated from extraData above. Run the GUI-open
+			// procedure only now, rather than from the shared constructor where x/y/z
+			// are still their default 0 values. Also only execute it on the server menu:
+			// running it on the client as well makes effects such as sounds happen twice.
+			if (this.entity instanceof ServerPlayer) {
+				<@procedureOBJToCode data.onOpen/>
+			}
+		</#if>
 	}
 
 	public ${name}Menu(int id, Inventory inv, Container container) {
@@ -210,9 +220,6 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 				this.addSlot(new Slot(inv, si, ${coffx} + 8 + si * 18, ${coffy} + 142));
 		</#if>
 
-		<#if hasProcedure(data.onOpen)>
-			<@procedureOBJToCode data.onOpen/>
-		</#if>
 	}
 
 	@Override public boolean stillValid(Player player) {
@@ -343,7 +350,12 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 			super.removed(playerIn);
 
 			<#if hasProcedure(data.onClosed)>
-				<@procedureOBJToCode data.onClosed/>
+				// AbstractContainerMenu.removed is invoked for both the client and server menu.
+				// Run the GUI-close procedure only on the authoritative server side so
+				// effects such as sounds, scheduled tasks, and world changes happen once.
+				if (playerIn instanceof ServerPlayer) {
+					<@procedureOBJToCode data.onClosed/>
+				}
 			</#if>
 
 			// Only clear temporary, unbound GUI slots that are explicitly configured to drop/return
@@ -394,7 +406,11 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 		<#if hasProcedure(data.onClosed)>
 			@Override public void removed(Player playerIn) {
 				super.removed(playerIn);
-				<@procedureOBJToCode data.onClosed/>
+				// The menu is removed on both logical sides; only fire the close event
+				// from the server-side menu to avoid duplicate procedure execution.
+				if (playerIn instanceof ServerPlayer) {
+					<@procedureOBJToCode data.onClosed/>
+				}
 			}
 		</#if>
 	</#if>
@@ -437,4 +453,3 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 </@javacompress>
 <#-- @formatter:on -->
 <#-- @formatter:on -->
-
