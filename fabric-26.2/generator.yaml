@@ -1,8 +1,7 @@
 name: Fabric for @minecraft (@buildfileversion)
 status: stable
 buildfileversion: 0.155.2+26.2
-subversion: 18
-
+subversion: 22
 import:
   - datapack-26.1.x
   - neoforge-26.1.2:
