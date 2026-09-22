@@ -91,6 +91,8 @@ tags:
     condition: isPiglinCurrency
   - tag: ITEMS:@modid:@registryname_repair_items
     entryprovider: getRepairItemsAsStringList()
+  - tag: ITEMS:minecraft:loom_patterns
+    condition: hasBannerPatterns()
   - tag: BANNER_PATTERNS:@modid:pattern_item/@registryname
     entryprovider: providedBannerPatterns
 
