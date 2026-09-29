@@ -1,8 +1,9 @@
-private static Projectile initProjectileProperties(Projectile entityToSpawn, Entity shooter, Vec3 acceleration) {
-	entityToSpawn.setOwner(shooter);
-	if (!Vec3.ZERO.equals(acceleration)) {
-		entityToSpawn.setDeltaMovement(acceleration);
-		entityToSpawn.needsSync = true;
-	}
-	return entityToSpawn;
+<@addTemplate file="utils/projectiles/projectile.java.ftl"/>
+private static Projectile createPotionProjectile(Level level, ItemStack contents, Entity shooter, Vec3 acceleration) {
+	AbstractThrownPotion entityToSpawn =
+			contents.getItem() == Items.LINGERING_POTION ?
+					new ThrownLingeringPotion(EntityTypes.LINGERING_POTION, level) :
+					new ThrownSplashPotion(EntityTypes.SPLASH_POTION, level);
+	entityToSpawn.setItem(contents);
+	return initProjectileProperties(entityToSpawn, shooter, acceleration);
 }
