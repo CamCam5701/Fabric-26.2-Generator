@@ -492,18 +492,58 @@ templates:
       - "blockBase %= HangingSign"
     writer: json
     name: "@MODASSETSROOT/models/item/@registryname.json"
-  - template: json/block_states.json.ftl
+  - template: json/txblock/hanging_sign_states.json.ftl
     condition: "blockBase %= HangingSign"
     writer: json
     name: "@MODASSETSROOT/blockstates/@registryname.json"
-  - template: json/block_states.json.ftl # Wall hanging sign blockstates definition
+  - template: json/txblock/wall_hanging_sign_states.json.ftl # Wall hanging sign blockstates definition
     condition: "blockBase %= HangingSign"
     writer: json
     name: "@MODASSETSROOT/blockstates/@[getWallRegistryName()].json"
-  - template: json/block_model_particle.json.ftl
+  - template: json/txblock/hanging_sign_model.json.ftl
     condition: "blockBase %= HangingSign"
     writer: json
-    name: "@MODASSETSROOT/models/block/@registryname.json"
+    variables: "attached=false;rotation=0"
+    name: "@MODASSETSROOT/models/block/@registryname_rot_0.json"
+  - template: json/txblock/hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    variables: "attached=false;rotation=1"
+    name: "@MODASSETSROOT/models/block/@registryname_rot_1.json"
+  - template: json/txblock/hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    variables: "attached=false;rotation=2"
+    name: "@MODASSETSROOT/models/block/@registryname_rot_2.json"
+  - template: json/txblock/hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    variables: "attached=false;rotation=3"
+    name: "@MODASSETSROOT/models/block/@registryname_rot_3.json"
+  - template: json/txblock/hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    variables: "attached=true;rotation=0"
+    name: "@MODASSETSROOT/models/block/@registryname_attached_rot_0.json"
+  - template: json/txblock/hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    variables: "attached=true;rotation=1"
+    name: "@MODASSETSROOT/models/block/@registryname_attached_rot_1.json"
+  - template: json/txblock/hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    variables: "attached=true;rotation=2"
+    name: "@MODASSETSROOT/models/block/@registryname_attached_rot_2.json"
+  - template: json/txblock/hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    variables: "attached=true;rotation=3"
+    name: "@MODASSETSROOT/models/block/@registryname_attached_rot_3.json"
+  - template: json/txblock/wall_hanging_sign_model.json.ftl
+    condition: "blockBase %= HangingSign"
+    writer: json
+    name: "@MODASSETSROOT/models/block/@[getWallRegistryName()].json"
 
 global_templates:
   - template: elementinits/woodtypes.java.ftl
@@ -683,6 +723,5 @@ tags:
       - "${data.vibrationalEvents?has_content}"
     entryprovider: getVibrationalEvents()
 
-field_exclusions: [transparencyType, displayFluidOverlay, beaconColorModifier, enchantPowerBonus, aiPathNodeType, plantsGrowOn, canRedstoneConnect, onDestroyedByPlayer,
-                   additionalHarvestCondition, hasEnergyStorage, energyCapacity, energyMaxReceive, energyMaxExtract, energyInitial, isFluidTank, fluidCapacity, fluidRestrictions,
-                   tintType]
+field_exclusions: [beaconColorModifier, enchantPowerBonus, aiPathNodeType, plantsGrowOn, canRedstoneConnect, onDestroyedByPlayer,
+                   additionalHarvestCondition, hasEnergyStorage, energyCapacity, energyMaxReceive, energyMaxExtract, energyInitial, isFluidTank, fluidCapacity, fluidRestrictions]
