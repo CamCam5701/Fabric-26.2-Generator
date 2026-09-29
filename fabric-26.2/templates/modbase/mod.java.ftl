@@ -31,6 +31,10 @@ public class ${JavaModName} implements ModInitializer {
 
 	public static final String MODID = "${modid}";
 
+	// Persistent custom NBT backing store for Fabric procedure blocks on entities and block entities.
+	public static final AttachmentType<CompoundTag> CUSTOM_NBT = AttachmentRegistry.createPersistent(
+			Identifier.parse(MODID + ":mcreator_custom_nbt"), CompoundTag.CODEC);
+
 	@Override public void onInitialize() {
 		// Start of user code block mod constructor
 		// End of user code block mod constructor
