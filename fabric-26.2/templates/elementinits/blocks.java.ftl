@@ -27,10 +27,14 @@
 package ${package}.init;
 
 <#assign hasTintedBlocks = false>
+<#assign hasFluidOverlayBlocks = false>
 <#list blocks as block>
 	<#if block.getModElement().getTypeString() == "block">
 		<#if block.tintType != "No tint">
 			<#assign hasTintedBlocks = true>
+		</#if>
+		<#if block.displayFluidOverlay>
+			<#assign hasFluidOverlayBlocks = true>
 		</#if>
 	<#elseif block.getModElement().getTypeString() == "plant">
 		<#if block.tintType != "No tint">
@@ -106,13 +110,16 @@ public class ${JavaModName}Blocks {
 		return (B) Blocks.register(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(${JavaModName}.MODID, name)), (Function<BlockBehaviour.Properties, Block>) supplier, BlockBehaviour.Properties.of());
 	}
 
-	<#if hasTintedBlocks>
+	<#if hasTintedBlocks || hasFluidOverlayBlocks>
 	public static void clientLoad() {
 		<#list blocks as block>
 			<#if block.getModElement().getTypeString() == "block" || block.getModElement().getTypeString() == "plant">
 				<#if block.tintType != "No tint">
 					 ${block.getModElement().getName()}Block.blockColorLoad();
 				</#if>
+			</#if>
+			<#if block.getModElement().getTypeString() == "block" && block.displayFluidOverlay>
+				FluidRenderingRegistry.setBlockTransparency(${JavaModName}Blocks.${block.getModElement().getRegistryNameUpper()}, true);
 			</#if>
 		</#list>
 	}
