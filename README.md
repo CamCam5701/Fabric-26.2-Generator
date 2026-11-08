@@ -20,6 +20,8 @@ This 26.2 port uses Fabric Loader 0.19.3, Loom 1.17-SNAPSHOT, Gradle 9.5.1, Java
 
 Developer: [CamCam5701](https://github.com/CamCam5701)
 
+Contributors: [milbe2686](https://github.com/milbe2686)
+
 Forked from [Goldorion's Fabric Generator](https://github.com/Goldorion).
 
 This generator reuses code from the official MCreator NeoForge generator and from [Goldorion's Fabric 26.1.2 generator](https://mcreator.net/plugin/64512/mcreator-fabric-generator).
